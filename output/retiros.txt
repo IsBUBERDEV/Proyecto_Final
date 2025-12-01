@@ -1,0 +1,13 @@
+   ESTUDIANTES ELIMINADOS - ESTUMERCADO
+Estudiante #1
+Cedula: 123
+Nombre: Uber Banquez
+Grado: 10
+Ultimo saldo: $253333.00
+----------------------------------------
+Estudiante #2
+Cedula: 3
+Nombre: Martin
+Grado: 4
+Ultimo saldo: $1000.00
+----------------------------------------

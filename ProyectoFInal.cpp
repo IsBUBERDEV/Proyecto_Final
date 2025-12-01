@@ -43,13 +43,13 @@ bool buscarProducto(const char* codigo, Producto& prod);
 void actualizarEstudiante(const Estudiante& est);
 void actualizarProducto(const Producto& prod);
 void obtenerFechaActual(char* fecha);
-int contarComprasEstudiante(const char* cedula);
+void contarComprasEstudiante(const char* cedula);
 void pausar();
 void limpiarBuffer();
 
 int main() {
     int opcion;
-
+    system("cls");
     cout << "========================================" << endl;
     cout << "   SISTEMA DE GESTION ESTUMERCADO" << endl;
     cout << "========================================" << endl;
@@ -61,31 +61,46 @@ int main() {
 
         switch(opcion) {
             case 1:
+                system("cls");
                 registrarEstudiante();
+                system("cls");
                 break;
             case 2:
+                system("cls");
                 agregarProducto();
+                system("cls");
                 break;
             case 3:
+                system("cls");
                 realizarCompra();
+                system("cls");
                 break;
             case 4:
+                system("cls");
                 recargarSaldo();
+                system("cls");
                 break;
             case 5:
+                system("cls");
                 eliminarEstudiante();
+                system("cls");
                 break;
             case 6:
+                system("cls");
                 menuConsultas();
+                system("cls");
                 break;
             case 7:
+                 system("cls");
                 cout << "Saliendo del sistema." << endl;
+                system("cls");
                 break;
             default:
+                system("cls");
                 cout << "Opcion invalida. Intente de nuevo." << endl;
                 pausar();
         }
-    } while(opcion != 9);
+    } while(opcion != 7);
 }
 void mostrarMenu() {
     cout<<"\n========================================"<<endl;
@@ -145,7 +160,7 @@ void registrarEstudiante() {
     archivo.write(reinterpret_cast<char*>(&nuevoEst), sizeof(Estudiante));
     archivo.close();
 
-    cout << "\n¡Estudiante registrado exitosamente!" << endl;
+    cout << "\nEstudiante Registrado" << endl;
     pausar();
 }
 void agregarProducto() {
@@ -223,7 +238,7 @@ void realizarCompra() {
     strcpy(nuevaCompra.nombreProducto, prod.nombre);
     nuevaCompra.valor = prod.precio;
     strcpy(nuevaCompra.cedulaEstudiante, cedula);
-    ofstream archivoCompras("compras.dat", ios::binary / ios::app);
+    ofstream archivoCompras("compras.dat", ios::binary | ios::app);
     if(!archivoCompras) {
         cout << "\nError al registrar la compra." << endl;
         pausar();
@@ -300,23 +315,223 @@ void menuConsultas() {
         limpiarBuffer();
         switch(opcion) {
             case 1:
+                system("cls");
                 consultarEstudiante();
+                system("cls");                
                 break;
             case 2:
+                system("cls");
                 listarProductos();
+                system("cls");
                 break;
             case 3:
+                system("cls");
                 estudiantesSaldoBajo();
+                system("cls");
                 break;
             case 4:
+                system("cls");
                 generarArchivoRetiros();
+                system("cls");
                 break;
             case 5:
+                system("cls");
                 cout << "Regresando al menu principal." << endl;
+                system("cls");
                 break;
             default:
+                system("cls");
                 cout << "Opcion invalida. Intente de nuevo." << endl;
                 pausar();
         }
     } while(opcion != 5);
+}
+void consultarEstudiante() {
+    cout << "\n--- CONSULTAR ESTUDIANTE ---" << endl;
+
+    char cedula[20];
+    Estudiante est;
+
+    cout << "Cedula del estudiante: ";
+    cin.getline(cedula, 20);
+
+    if (!buscarEstudiante(cedula, est)) {
+        cout << "\nEstudiante no encontrado." << endl;
+        pausar();
+        return;
+    }
+    cout << "Nombre: " << est.nombre << endl;
+    cout << "Grado: " << est.grado << endl;
+    cout << "Saldo: $" << fixed << setprecision(2) << est.saldo << endl;
+    cout << "Estado: " << (est.activo ? "Activo" : "Eliminado") << endl;
+    pausar();
+}
+void listarProductos() {
+    cout << "\n--- LISTA DE PRODUCTOS ---" << endl;
+
+    ifstream archivo("productos.dat", ios::binary);
+    if (!archivo) {
+        cout << "No hay productos registrados." << endl;
+        pausar();
+        return;
+    }
+    Producto prod;
+    int contador = 0;
+    while (archivo.read(reinterpret_cast<char*>(&prod), sizeof(Producto))) {
+        if (prod.activo) {
+            contador++;
+            cout << "\nProducto #" <<contador<<endl;
+            cout << "Codigo: " << prod.codigo << endl;
+            cout << "Nombre: " << prod.nombre << endl;
+            cout << "Precio: $" << fixed << setprecision(2) << prod.precio << endl;
+            cout << "Stock: " << prod.stock << " unidades" << endl;
+        }
+    }
+    if (contador == 0) {
+        cout << "No hay productos activos." << endl;
+    }
+    archivo.close();
+    pausar();
+}
+void estudiantesSaldoBajo() {
+    cout << "\n--- ESTUDIANTES CON SALDO MENOR A $5,000 ---" << endl;
+
+    ifstream archivo("estudiantes.dat", ios::binary);
+    if (!archivo) {
+        cout << "No hay estudiantes registrados." << endl;
+        pausar();
+        return;}
+        Estudiante est;
+        int contador = 0;
+        while(archivo.read(reinterpret_cast<char*>(&est),sizeof(Estudiante))){
+            if(est.activo && est.saldo < 5000){
+                contador++;
+                cout << contador << ". " << est.nombre << " (" << est.cedula << ")" << endl;
+                cout << "   Grado: " << est.grado << endl;
+                cout << "   Saldo: $" << fixed << setprecision(2) << est.saldo << endl;
+            }
+        }
+        if(contador == 0){
+            cout << "No hay estudiantes con saldo menor a $5,000." << endl;
+        }
+        archivo.close();
+        pausar();
+}
+void generarArchivoRetiros(){
+    cout << "\n--- GENERAR ARCHIVO DE RETIROS ---" << endl;
+
+    ifstream archivoLectura("estudiantes.dat", ios::binary);
+    if (archivoLectura.fail()) {
+        cout << "no hay estudiantes registrados."<<endl;
+        pausar();
+        return;
+    }
+    ofstream archivoRetiros("retiros.txt");
+    if (archivoRetiros.fail()){
+        cout << "Error al crear el archivo de retiros."<<endl;
+        pausar();
+        return;
+    }
+    archivoRetiros << "   ESTUDIANTES ELIMINADOS - ESTUMERCADO" << endl;
+
+    Estudiante est;
+    int contador = 0;
+    while (archivoLectura.read(reinterpret_cast<char*>(&est), sizeof(Estudiante))) {
+        if (!est.activo) {
+            contador++;
+            archivoRetiros << "Estudiante #" << contador << endl;
+            archivoRetiros << "Cedula: " << est.cedula << endl;
+            archivoRetiros << "Nombre: " << est.nombre << endl;
+            archivoRetiros << "Grado: " << est.grado << endl;
+            archivoRetiros << "Ultimo saldo: $" << fixed << setprecision(2) << est.saldo << endl;
+            archivoRetiros << "----------------------------------------" << endl;
+        }
+    }
+    archivoRetiros.close();
+    if (contador == 0) {
+    archivoRetiros << "No hay estudiantes eliminados." << endl;}
+    cout << "\nArchivo Generado" << endl;
+    cout << "Total de estudiantes eliminados: " << contador << endl;
+    pausar();
+}
+
+//funciones utilitarias
+bool buscarEstudiante(const char* cedula, Estudiante& est){
+    ifstream archivo("estudiantes.dat",ios::binary);
+    if(!archivo)return false;
+    while(archivo.read(reinterpret_cast<char*>(&est),sizeof(Estudiante))){
+        if(strcmp(est.cedula,cedula)==0 && est.activo){
+            archivo.close();
+            return true;
+        }
+    }
+    archivo.close();
+    return false;
+}
+bool buscarProducto(const char* codigo, Producto& prod){
+    ifstream archivo("productos.dat",ios::binary);
+    if(!archivo)return false;
+    while(archivo.read(reinterpret_cast<char*>(&prod),sizeof(Producto))){
+        if(strcmp(prod.codigo,codigo)==0 && prod.activo){
+            archivo.close();
+            return true;
+        }
+    }
+    archivo.close();
+    return false;
+}
+void actualizarEstudiante(const Estudiante& est){
+    fstream archivo("estudiantes.dat",ios::binary | ios::in | ios::out);
+    if(!archivo)return;
+    Estudiante temp;
+    while(archivo.read(reinterpret_cast<char*>(&temp),sizeof(Estudiante))){
+        if(strcmp(temp.cedula,est.cedula)==0){
+            archivo.seekp(-static_cast<int>(sizeof(Estudiante)),ios::cur);
+            archivo.write(reinterpret_cast<const char*>(&est),sizeof(Estudiante));
+            break;
+        }
+    }
+    archivo.close();
+
+
+}
+void contarComprasEstudiante(const char* cedula){
+    int contador = 0;
+    ifstream archivo("compras.dat",ios::binary);
+    if(!archivo)return;
+    Compra comp;
+    while(archivo.read(reinterpret_cast<char*>(&comp),sizeof(Compra))){
+        if(strcmp(comp.cedulaEstudiante,cedula)==0){
+            contador++;
+        }
+    }
+}
+void actualizarProducto(const Producto& prod){
+    fstream archivo("productos.dat",ios::binary | ios::in | ios::out);
+    if(!archivo)return;
+    Producto temp;
+    while(archivo.read(reinterpret_cast<char*>(&temp),sizeof(Producto))){
+        if(strcmp(temp.codigo,prod.codigo)==0){
+            archivo.seekp(-static_cast<int>(sizeof(Producto)),ios::cur);
+            archivo.write(reinterpret_cast<const char*>(&prod),sizeof(Producto));
+            break;
+        }
+    }
+    archivo.close();
+}
+void obtenerFechaActual(char* fecha) {
+    time_t ahora = time(0);
+    tm* tiempoLocal = localtime(&ahora);
+    
+    sprintf(fecha, "%02d/%02d/%04d", 
+            tiempoLocal->tm_mday,
+            tiempoLocal->tm_mon + 1,
+            tiempoLocal->tm_year + 1900);
+}
+void pausar(){
+    cout<<"\nPresione ENTER para continuar...";
+    cin.get();
+}
+void limpiarBuffer() {
+    cin.ignore(10000, '\n');
 }
