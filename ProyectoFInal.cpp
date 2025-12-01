@@ -198,7 +198,7 @@ void agregarProducto() {
 }
     archivo.write(reinterpret_cast<char*>(&nuevoProd), sizeof(Producto));
     archivo.close();
-    cout << "\n¡Producto agregado exitosamente!" << endl;
+    cout << "\nProducto Agregado" << endl;
     pausar();
 }
 void realizarCompra() {
